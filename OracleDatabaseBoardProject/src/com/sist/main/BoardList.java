@@ -1,12 +1,18 @@
 package com.sist.main;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.SimpleDateFormat;
+
 import javax.swing.*;
 import javax.swing.table.*;
+
+import java.util.Date;
 import java.util.List;
 import com.sist.dao.BoardDAO;
 import com.sist.vo.BoardVO;
-public class BoardList extends JPanel implements ActionListener{
+public class BoardList extends JPanel implements ActionListener,
+MouseListener
+{
     JLabel la1,la2;
     JTable table;
     DefaultTableModel model;
@@ -26,8 +32,8 @@ public class BoardList extends JPanel implements ActionListener{
     	b2=new JButton("이전");
     	b3=new JButton("다음");
     	
-    	String[] col={"번호","제목","이름","작성일","조회수"};
-    	String[][] row=new String[0][5];
+    	String[] col={"번호","","제목","이름","작성일","조회수"};
+    	String[][] row=new String[0][6];
     	model=new DefaultTableModel(row,col)
     	{
 
@@ -52,12 +58,11 @@ public class BoardList extends JPanel implements ActionListener{
     		}
     		else if(i==1)
     		{
-    			column.setPreferredWidth(350);
+    			column.setPreferredWidth(35);
     		}
     		else if(i==2)
     		{
-    			column.setPreferredWidth(100);
-    			rend.setHorizontalAlignment(JLabel.CENTER);
+    			column.setPreferredWidth(350);
     		}
     		else if(i==3)
     		{
@@ -65,6 +70,11 @@ public class BoardList extends JPanel implements ActionListener{
     			rend.setHorizontalAlignment(JLabel.CENTER);
     		}
     		else if(i==4)
+    		{
+    			column.setPreferredWidth(100);
+    			rend.setHorizontalAlignment(JLabel.CENTER);
+    		}
+    		else if(i==5)
     		{
     			column.setPreferredWidth(50);
     			rend.setHorizontalAlignment(JLabel.CENTER);
@@ -75,6 +85,9 @@ public class BoardList extends JPanel implements ActionListener{
     	table.getTableHeader().setResizingAllowed(false);
     	table.setRowHeight(30);
     	table.getTableHeader().setBackground(Color.pink);
+    	table.getColumnModel().removeColumn(
+    	    table.getColumnModel().getColumn(1)
+    	);
     	
     	setLayout(null);
     	la1.setBounds(10, 15, 610, 50);
@@ -89,9 +102,10 @@ public class BoardList extends JPanel implements ActionListener{
     	add(p);
     	print();
     	
-    	b1.addActionListener(this);
+    	b1.addActionListener(this);// Menu / Button / TextField
     	b2.addActionListener(this);
     	b3.addActionListener(this);
+    	table.addMouseListener(this);// table / tree / label  
     }
     // 데이터 출력 
     public void print()
@@ -107,12 +121,18 @@ public class BoardList extends JPanel implements ActionListener{
     	int count=dao.boardRowCount();
     	totalpage=(int)(Math.ceil(count/10.0));
     	count=count-((curpage*10)-10); 
-    	
+        String today=new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     	for(BoardVO vo:list)
     	{
+    		String ss="<html><body>"+vo.getSubject()+"</body></html>";
+    		if(vo.getDbday().equals(today))
+    		{
+    			ss="<html><body>"+vo.getSubject()+"&nbsp;<sup><font color=red>new</font></sub></body></html>";
+    		}
     		String[] data= {
     			String.valueOf(count),
-    			vo.getSubject(),
+    			String.valueOf(vo.getNo()),
+    			ss,
     			vo.getName(),
     			vo.getDbday(),
     			String.valueOf(vo.getHit())
@@ -150,6 +170,40 @@ public class BoardList extends JPanel implements ActionListener{
 			bm.bInsert.ta.setText("");
 			bm.bInsert.pf.setText("");
 		}
+	}
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if(e.getSource()==table)
+		{
+			if(e.getClickCount()==2)
+			{
+				int row=table.getSelectedRow();
+				String no=model.getValueAt(row, 1).toString();
+				bm.card.show(bm.getContentPane(), "detail");
+				bm.bDetail.print(Integer.parseInt(no));
+			}
+		}
+	}
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
     
 }
